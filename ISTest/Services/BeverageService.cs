@@ -41,5 +41,3 @@ public class BeverageService
     }
 }
 
-builder.Services.AddDbContext<BeverageContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
