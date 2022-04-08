@@ -1,24 +1,19 @@
 ﻿namespace ISTest.Models;
 
-public class Beverage
+public class VendingMachine
 {
-    public Beverage()
+    public VendingMachine()
     {
+        CoinToVendingMachines = new HashSet<CoinToVendingMachine>();
         BeverageToVendingMachines = new HashSet<BeverageToVendingMachine>();
     }
     public int Id { get; set; }
 
+    [StringLength(100)]
     [Required]
-    [StringLength(20)]
     public string Name { get; set; }
 
-    [Precision(4, 2)]
-    [Range(0, 9999)]
-    public decimal Price { get; set; }
-
-    [Precision(2, 2)]
-    [Range(0, 10)]
-    public decimal Volume { get; set; }
-
+    public virtual ICollection<CoinToVendingMachine> CoinToVendingMachines { get; set; }
     public virtual ICollection<BeverageToVendingMachine> BeverageToVendingMachines { get; set; }
 }
+

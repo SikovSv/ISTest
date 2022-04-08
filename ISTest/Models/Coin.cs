@@ -2,11 +2,20 @@
 
 public class Coin
 {
-    [Key]
-    public int Value { get; set; }
+    public Coin()
+    {
+        CoinToVendingMachines = new HashSet<CoinToVendingMachine>();
+    }
 
-    public bool Disabled { get; set; }
+    public int Id { get; set; }
+
+    [Precision(5, 2)]
+    [Range(0, 9999)]
+    public decimal Value { get; set; }
 
     [StringLength(100)]
-    public string ImmagePath { get; set; }
+    public string ImagePath { get; set; }
+
+    public virtual ICollection<CoinToVendingMachine> CoinToVendingMachines { get; set; }
 }
+
