@@ -1,43 +1,58 @@
-﻿using ISTest.Data;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using ISTest.Data;
 
 namespace ISTest.Services;
 
 public class BeverageService
 {
-    private readonly BeverageContext _context;
+    private readonly IDbContextFactory<BeverageContext> _contextFactory;
+    private readonly IMapper _mapper;
 
-    public BeverageService(BeverageContext context)
+    public BeverageService(IDbContextFactory<BeverageContext> contextFactory, IMapper mapper)
     {
-        _context = context;
+        _contextFactory = contextFactory;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<Beverage>> GetAllBeverages()
     {
-        return await _context.Beverages.ToListAsync();
+        using var context = _contextFactory.CreateDbContext();
+        return await context.Beverages.ToListAsync();
     }
 
     public async Task<Beverage> CreateBeverage(Beverage beverage)
     {
-        var entityEntry = await _context.Beverages.AddAsync(beverage);
-        await _context.SaveChangesAsync();
+        using var context = _contextFactory.CreateDbContext();
+        var entityEntry = await context.Beverages.AddAsync(beverage);
+        await context.SaveChangesAsync();
         return entityEntry.Entity;
     }
 
     public async Task DeleteBeverage(int beverageId)
     {
-        var entity = await _context.Beverages.FindAsync(beverageId);
+        using var context = _contextFactory.CreateDbContext();
+        var entity = await context.Beverages.FindAsync(beverageId);
         if (entity is null) return;
-        _context.Beverages.Remove(entity);
-        await _context.SaveChangesAsync();
+        context.Beverages.Remove(entity);
+        await context.SaveChangesAsync();
     }
 
     public async Task UpdateBeverage(Beverage beverage)
     {
-        var entity = await _context.Beverages.FindAsync(beverage.Id);
+        using var context = _contextFactory.CreateDbContext();
+        var entity = await context.Beverages.FindAsync(beverage.Id);
         if (entity is null) return;
-        entity.Number = beverage.Number;
+        entity.Name = beverage.Name;
+        entity.Volume = beverage.Volume;
         entity.Price = beverage.Price;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<BeverageForVendingMachineDto>> GetBeveragesInVendingMachine(int vendingMachineId)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        return await context.Beverages.Where(x => x.BeverageToVendingMachines.Any(x => x.VendingMachineId == vendingMachineId))
+            .ProjectTo<BeverageForVendingMachineDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 }
-

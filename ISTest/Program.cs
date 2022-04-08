@@ -1,3 +1,4 @@
+using AutoMapper;
 using ISTest.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -16,6 +17,12 @@ builder.Services.AddDbContextFactory<BeverageContext>(
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
+
+var mapperConfig = new MapperConfiguration(mc =>
+    mc.AddProfile(new MappingProfile()));
+builder.Services.AddSingleton(mapperConfig.CreateMapper());
+
+builder.Services.AddScoped<ICoinService, CoinService>();
 
 var app = builder.Build();
 

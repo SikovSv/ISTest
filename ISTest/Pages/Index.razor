@@ -3,6 +3,15 @@
 <PageTitle>Автомат по продаже напитков</PageTitle>
 
 <h1>Автомат по продаже напитков</h1>
+<div class="vending-machine">
+    @if(Coins is not null)
+    {
+        foreach(var coin in Coins)
+        {
+            <button ><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
+        }
+    }
+</div>
 
-<img src="Images\Coins\97(16)_10R_R.gif"  />
+
 
