@@ -4,7 +4,7 @@ using ISTest.Data;
 
 namespace ISTest.Services;
 
-public class BeverageService
+public class BeverageService : IBeverageService
 {
     private readonly IDbContextFactory<BeverageContext> _contextFactory;
     private readonly IMapper _mapper;

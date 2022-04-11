@@ -23,6 +23,7 @@ var mapperConfig = new MapperConfiguration(mc =>
 builder.Services.AddSingleton(mapperConfig.CreateMapper());
 
 builder.Services.AddScoped<ICoinService, CoinService>();
+builder.Services.AddScoped<IBeverageService, BeverageService>();
 
 var app = builder.Build();
 

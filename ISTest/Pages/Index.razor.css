@@ -1,7 +1,50 @@
 ﻿.vending-machine {
+    margin-left: auto;
+    margin-right: auto;
     width: 500px;
-    border: 5px solid gray;
+    border: 5px solid;
+    border-color: maroon;
 }
+
+    .vending-machine .vending-machine-header {
+        text-align: center;
+        background-color: maroon;
+        color: wheat;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .vending-machine .vending-machine-display {
+        margin: 1.5em;
+        /*padding:3px;*/
+    }
+
+        .vending-machine .vending-machine-display textarea {
+            width: 100%;
+            background-color: olivedrab;
+            resize: none;
+        }
+
+    .beverages {
+        margin: 5px;
+        border: 2px solid;
+        border-color: wheat;
+    }
+
+    .beverages .beverages-header {
+        text-align: center;
+        background-color: wheat;
+        color: maroon;
+        font-size: 20px;
+        font-weight: bold;
+        font-style: italic;
+    }
+
 .coin {
     width: 50px;
+}
+
+textarea {
+    width: 100%;
+    background-color: olivedrab;
+    resize: none;
 }

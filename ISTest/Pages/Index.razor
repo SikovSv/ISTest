@@ -2,16 +2,51 @@
 
 <PageTitle>Автомат по продаже напитков</PageTitle>
 
-<h1>Автомат по продаже напитков</h1>
-<div class="vending-machine">
-    @if(Coins is not null)
-    {
-        foreach(var coin in Coins)
-        {
-            <button ><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
-        }
-    }
+<div class="container">
+    <div class="vending-machine">
+        <div class="vending-machine-header">Автомат по продаже напитков</div>
+        <div class="vending-machine-display">
+            <textarea readonly rows="2">@DisplayText</textarea>
+        </div>
+        <div class="coin-acceptor">
+            @if (Coins is not null)
+            {
+                foreach (var coin in Coins)
+                {
+                    <button @onclick="@(()=>AddCoin(coin.Value))"><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
+                }
+            }
+        </div>
+
+        <div class="beverages">
+            <div class="beverages-header">Напитки</div>
+            @if (Beverages is not null && Beverages.Any())
+            {
+                <div class="row beverages-list">
+                    @foreach (var beverage in Beverages)
+                    {
+                        <div class="col-6">
+                            <div class="card text-center  m-2">
+                                <div class="card-body">
+                                    <h5 class="card-title">@beverage.Name</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">Объем: @beverage.Volume л.</h6>
+                                    <button class="btn btn-primary" disabled="@(beverage.Price>Bank || beverage.Amount==0)" @onclick="@(()=>Buy(beverage))">@beverage.Price р.</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center m-2" role="alert">
+                    Напитки не загружены!
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
 
 
 
