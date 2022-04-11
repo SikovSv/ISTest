@@ -3,6 +3,7 @@ namespace ISTest.Services
 {
     public interface ICoinService
     {
-        Task<IEnumerable<Coin>> GetAllCoins();
+        Task<IEnumerable<CoinToVendingMachineDto>> GetAllCoins(int vendingMachineId);
+        Task<IEnumerable<CoinDto>> GetAllCoins();
     }
 }

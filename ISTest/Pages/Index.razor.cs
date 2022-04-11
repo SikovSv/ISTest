@@ -9,21 +9,37 @@ namespace ISTest.Pages
         [Inject]
         protected IBeverageService BeverageService { get; set; }
 
-        protected IEnumerable<Coin> Coins { get; set; }
+        protected IEnumerable<CoinDto> Coins { get; set; }
+        protected IEnumerable<CoinToVendingMachineDto> VendingMachineCoins { get; set; }
         protected IEnumerable<BeverageForVendingMachineDto> Beverages { get; set; }
+        protected Dictionary<CoinDto, int> ChangeBank { get; set; } = new();
         protected string DisplayText { get; set; }
         protected decimal Bank { get; set; }
         protected override async Task OnInitializedAsync()
         {
             SetCashText(Bank);
             Coins = await CoinService.GetAllCoins();
+            VendingMachineCoins = await CoinService.GetAllCoins(1);
             Beverages = await BeverageService.GetBeveragesInVendingMachine(1);
         }
 
-        protected void AddCoin(decimal value)
+        protected async Task AddCoin(CoinDto coin)
         {
-            Bank += value;
-            SetCashText(Bank);
+            ChangeBank.Clear();
+            var coinVM = VendingMachineCoins.FirstOrDefault(x => x.Id == coin.Id);
+            if (coinVM is null || coinVM.Disabled)
+            {
+                if (ChangeBank.ContainsKey(coin)) ChangeBank[coin]++;
+                else ChangeBank[coin] = 1;
+                SetNotAcceptText();
+                await Task.Delay(3000);
+                SetCashText(Bank);
+            }
+            else
+            {
+                Bank += coin.Value;
+                SetCashText(Bank);
+            }
         }
 
         protected async Task Buy(BeverageForVendingMachineDto beverage)
@@ -35,9 +51,25 @@ namespace ISTest.Pages
             else
             {
                 Bank -= beverage.Price;
-                SetBuyText(beverage);                
+                SetBuyText(beverage);
             }
             await Task.Delay(3000);
+            SetCashText(Bank);
+        }
+
+        protected async Task GetChange()
+        {
+            if (Bank == 0) return;
+
+            foreach (var coinVM in VendingMachineCoins.OrderByDescending(x => x.Value))
+            {
+                while (Bank - coinVM.Value >= 0)
+                {
+                    if (ChangeBank.ContainsKey(coinVM)) ChangeBank[coinVM]++;
+                    else ChangeBank[coinVM] = 1;
+                    Bank -= coinVM.Value;
+                }
+            }
             SetCashText(Bank);
         }
 
@@ -58,5 +90,10 @@ namespace ISTest.Pages
         {
             DisplayText = "Сбой в работе!" + Environment.NewLine + "Через некоторое время автомат вернется к работе...";
         }
+        protected void SetNotAcceptText()
+        {
+            DisplayText = "Аппарат не принимает данные монеты!" + Environment.NewLine + "Попробуйте вставить другую монету";
+        }
+
     }
 }

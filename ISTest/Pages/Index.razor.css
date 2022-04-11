@@ -13,6 +13,7 @@
         font-size: 24px;
         font-weight: bold;
     }
+
     .vending-machine .vending-machine-display {
         margin: 1.5em;
         /*padding:3px;*/
@@ -24,13 +25,29 @@
             resize: none;
         }
 
-    .beverages {
-        margin: 5px;
-        border: 2px solid;
-        border-color: wheat;
-    }
+.beverages {
+    margin: 5px;
+    border: 2px solid;
+    border-color: wheat;
+}
 
     .beverages .beverages-header {
+        text-align: center;
+        background-color: wheat;
+        color: maroon;
+        font-size: 20px;
+        font-weight: bold;
+        font-style: italic;
+    }
+
+.change-tray {
+    margin: 5px;
+    border: 2px solid;
+    border-color: wheat;
+    min-height: 100px;
+}
+
+    .change-tray .change-tray-header {
         text-align: center;
         background-color: wheat;
         color: maroon;

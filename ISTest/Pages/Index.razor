@@ -13,7 +13,7 @@
             {
                 foreach (var coin in Coins)
                 {
-                    <button @onclick="@(()=>AddCoin(coin.Value))"><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
+                    <button @onclick="@(()=>AddCoin(coin))"><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
                 }
             }
         </div>
@@ -43,6 +43,22 @@
                     Напитки не загружены!
                 </div>
             }
+        </div>
+        <div class="align-content-center mx-auto">
+            <button class="btn btn-primary" disabled="@(Bank==0)" @onclick="@(()=>GetChange())">Забрать сдачу</button>
+        </div>
+        <div class="change-tray">
+            <div class="change-tray-header">Сдача</div>
+            <div class="p-2">
+                @if (ChangeBank.Any())
+                {
+                    foreach (var stack in ChangeBank)
+                        for (var i = 0; i < stack.Value; i++)
+                        {
+                            <img class="coin" src="Images\Coins\@stack.Key.ImagePath" />
+                        }
+                }
+            </div>
         </div>
     </div>
 </div>
