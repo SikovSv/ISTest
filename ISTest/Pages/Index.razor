@@ -3,19 +3,26 @@
 <PageTitle>Автомат по продаже напитков</PageTitle>
 
 <div class="container">
-    <div class="card vending-machine" >
+    <div class="card vending-machine">
         <div class="card-header text-center">Автомат по продаже напитков</div>
         <div class="vending-machine-display">
             <textarea readonly rows="2">@DisplayText</textarea>
         </div>
-        <div class="coin-acceptor">
-            @if (Coins is not null)
-            {
-                foreach (var coin in Coins)
-                {
-                    <button @onclick="@(()=>AddCoin(coin))"><img class="coin" src="Images\Coins\@coin.ImagePath" /></button>
-                }
-            }
+        <div class="card m-2">
+            <div class="card-header text-center">
+                Монетоприемник
+            </div>
+            <div class="card-body p-0 coin-acceptor d-flex justify-content-center">
+                <div class="p-2">
+                    @if (Coins is not null)
+                    {
+                        foreach (var coin in Coins)
+                        {
+                            <img class="coin" src="Images\Coins\@coin.ImagePath" @onclick="@(()=>AddCoin(coin))" />
+                        }
+                    }
+                </div>
+            </div>
         </div>
         <div class="card m-2">
             <div class="card-header text-center">
@@ -32,7 +39,17 @@
                                     <div class="card-body">
                                         <h5 class="card-title">@beverage.Name</h5>
                                         <h6 class="card-subtitle mb-2 text-muted">Объем: @beverage.Volume л.</h6>
-                                        <button class="btn btn-primary" disabled="@(beverage.Price>Bank || beverage.Amount==0)" @onclick="@(()=>Buy(beverage))">@beverage.Price р.</button>
+                                        <hr />
+                                        @if (beverage.Amount > 0)
+                                        {
+                                            <button class="btn btn-primary" disabled="@(beverage.Price>Bank)" @onclick="@(()=>Buy(beverage))">@beverage.Price р.</button>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-danger m-1 p-0 " role="alert">
+                                                Напиток закончился
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -66,10 +83,10 @@
                     }
                 </div>
             </div>
-        </div>       
+        </div>
     </div>
-    </div>
-    
+</div>
+
 
 
 

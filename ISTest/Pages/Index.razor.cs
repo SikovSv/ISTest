@@ -24,8 +24,7 @@ namespace ISTest.Pages
         }
 
         protected async Task AddCoin(CoinDto coin)
-        {
-            ChangeBank.Clear();
+        {            
             var coinVM = VendingMachineCoins.FirstOrDefault(x => x.Id == coin.Id);
             if (coinVM is null || coinVM.Disabled)
             {
@@ -37,7 +36,10 @@ namespace ISTest.Pages
             }
             else
             {
+                ChangeBank.Clear();
+                await CoinService.AddCoinToVendingMachine(1, coin.Id);
                 Bank += coin.Value;
+                coinVM.Amount++;
                 SetCashText(Bank);
             }
         }
@@ -51,6 +53,8 @@ namespace ISTest.Pages
             else
             {
                 Bank -= beverage.Price;
+                beverage.Amount--;
+                await BeverageService.BuyBeverage(1, beverage.Id);
                 SetBuyText(beverage);
             }
             await Task.Delay(3000);
@@ -60,18 +64,26 @@ namespace ISTest.Pages
         protected async Task GetChange()
         {
             if (Bank == 0) return;
+            var change = await CoinService.GetChangeFromVendingMachine(1, Bank);
 
-            foreach (var coinVM in VendingMachineCoins.OrderByDescending(x => x.Value))
+            decimal returnSum = 0;
+            foreach (var coinVM in change)
             {
-                while (Bank - coinVM.Value >= 0)
-                {
-                    if (ChangeBank.ContainsKey(coinVM)) ChangeBank[coinVM]++;
-                    else ChangeBank[coinVM] = 1;
-                    Bank -= coinVM.Value;
-                }
+                var coin = Coins.First(x => x.Id == coinVM.coinId);
+                if (ChangeBank.ContainsKey(coin)) ChangeBank[coin] += coinVM.amount;
+                else ChangeBank[coin] = coinVM.amount;
+                returnSum += coin.Value * coinVM.amount;
             }
+            Bank -= returnSum;
+
+            if (Bank != 0)
+            {
+                SetNoMoneyText();
+                await Task.Delay(3000);
+            }            
             SetCashText(Bank);
         }
+
 
         protected void SetCashText(decimal value)
         {
@@ -90,10 +102,15 @@ namespace ISTest.Pages
         {
             DisplayText = "Сбой в работе!" + Environment.NewLine + "Через некоторое время автомат вернется к работе...";
         }
+
         protected void SetNotAcceptText()
         {
             DisplayText = "Аппарат не принимает данные монеты!" + Environment.NewLine + "Попробуйте вставить другую монету";
         }
 
+        protected void SetNoMoneyText()
+        {
+            DisplayText = "В аппарате закончилась сдача!" + Environment.NewLine + "Обратитесь в службу техничесой поддержки...";
+        }
     }
 }

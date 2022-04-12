@@ -55,4 +55,13 @@ public class BeverageService : IBeverageService
         return await context.Beverages.Where(x => x.BeverageToVendingMachines.Any(x => x.VendingMachineId == vendingMachineId))
             .ProjectTo<BeverageForVendingMachineDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
+
+    public async Task BuyBeverage(int vendingMachineId, int beverageId)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var entity = await context.BeverageToVendingMachines.FirstOrDefaultAsync(x => x.VendingMachineId == vendingMachineId && x.BeverageId == beverageId);
+        if (entity is not null)
+            entity.Number--;
+        await context.SaveChangesAsync();
+    }
 }
