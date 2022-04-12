@@ -1,11 +1,9 @@
 ﻿namespace ISTest.Dto;
 
-public class BeverageForVendingMachineDto
+public class BeverageForVendingMachineDto : BeverageDto
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-    public decimal Volume { get; set; }
+
+    [Range(0, 1000, ErrorMessage = "Количество должно находиться в диапазоне от 0 до 1000")]
     public int Amount { get; set; }
 
 }

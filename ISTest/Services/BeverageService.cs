@@ -15,18 +15,18 @@ public class BeverageService : IBeverageService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Beverage>> GetAllBeverages()
+    public async Task<IEnumerable<BeverageDto>> GetAllBeverages()
     {
         using var context = _contextFactory.CreateDbContext();
-        return await context.Beverages.ToListAsync();
+        return await context.Beverages.ProjectTo<BeverageDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
-    public async Task<Beverage> CreateBeverage(Beverage beverage)
+    public async Task<BeverageDto> CreateBeverage(BeverageDto beverage)
     {
         using var context = _contextFactory.CreateDbContext();
-        var entityEntry = await context.Beverages.AddAsync(beverage);
+        var entityEntry = await context.Beverages.AddAsync(_mapper.Map<Beverage>(beverage));
         await context.SaveChangesAsync();
-        return entityEntry.Entity;
+        return _mapper.Map<BeverageDto>(entityEntry.Entity);
     }
 
     public async Task DeleteBeverage(int beverageId)
@@ -38,7 +38,7 @@ public class BeverageService : IBeverageService
         await context.SaveChangesAsync();
     }
 
-    public async Task UpdateBeverage(Beverage beverage)
+    public async Task UpdateBeverage(BeverageDto beverage)
     {
         using var context = _contextFactory.CreateDbContext();
         var entity = await context.Beverages.FindAsync(beverage.Id);

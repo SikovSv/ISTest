@@ -6,6 +6,7 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        CreateMap<Beverage, BeverageDto>().ReverseMap();
         CreateMap<Beverage, BeverageForVendingMachineDto>()
             .ForMember(x => x.Amount, x => x.MapFrom(y => y.BeverageToVendingMachines.First().Number));
         CreateMap<Coin, CoinDto>();

@@ -1,7 +1,185 @@
 ﻿@page "/admin/{AdminKey}"
-
 <PageTitle>Панель администратора</PageTitle>
 
 <div class="container">
+    @if (IsAccess)
+    {
+        <div class="alert alert-success text-center" role="alert">
+            <strong>Доступ разрешен!</strong>
+        </div>
+        <div class="row">
+            <div class="col">
+                @if (VendingMachineBeverages is not null)
+                {
+                    <EditForm Model="VendingMachineBeverages" Context="VendingMachineBeveragesContext" @ref="EditVMForm" OnValidSubmit="VendingMachineBeveragesSubmit">
+                        <ObjectGraphDataAnnotationsValidator />
+                        <div class="card m-1">
+                            <div class="card-header text-center">
+                                Напитки в автомате
+                            </div>
+                            <div class="card-body">
+                                <ValidationSummary />
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Название</th>
+                                            <th scope="col">Объем</th>
+                                            <th scope="col">Цена</th>
+                                            <th scope="col">Кол-во</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var beverage in VendingMachineBeverages)
+                                        {
+                                            <tr>
+                                                <td>@beverage.Name</td>
+                                                <td>@beverage.Volume</td>
+                                                <td>@(beverage.Price.ToString("N2"))</td>
+                                                <td>
+                                                    <InputNumber @bind-Value="beverage.Amount"></InputNumber>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-danger py-0" title="Удалить позицию" @onclick="()=>DeleteVendingMachineBeverage(beverage)">X</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary" disabled=@(!VendingMachineBeveragesContext.Validate())>Сохранить</button>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+            <div class="col">
+                @if (Beverages is not null)
+                {
+                    <EditForm Model="Beverages" Context="BeveragesContext" @ref="EditBeveragesForm" OnValidSubmit="BeveragesSubmit">
+                        <ObjectGraphDataAnnotationsValidator />
+                        <div class="card m-1">
+                            <div class="card-header text-center">
+                                Номенклатура напитков
+                            </div>
+                            <div class="card-body">
+                                <ValidationSummary />
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Название</th>
+                                            <th scope="col">Объем</th>
+                                            <th scope="col">Цена</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var beverage in Beverages)
+                                        {
+                                            <tr>
+                                                <td>@beverage.Name</td>
+                                                <td>@beverage.Volume</td>
+                                                <td>
+                                                    <InputNumber class="form-control" @bind-Value="beverage.Price"></InputNumber>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
 
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary" disabled=@(!BeveragesContext.Validate())>Сохранить</button>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col">
+                @if (VendingMachineCoins is not null)
+                {
+                    <EditForm Model="VendingMachineCoins" Context="VendingMachineCoinsContext" @ref="EditVendingMachineCoinsForm" OnValidSubmit="VendingMachineCoinsSubmit">
+                        <ObjectGraphDataAnnotationsValidator />
+                        <div class="card m-1">
+                            <div class="card-header text-center">
+                                Монеты в автомате
+                            </div>
+                            <div class="card-body">
+                                <ValidationSummary />
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Номинал</th>
+                                            <th scope="col">Кол-во</th>
+                                            <th scope="col">Отключен</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var coin in VendingMachineCoins)
+                                        {
+                                            <tr>
+                                                <td>@coin.Value</td>
+                                                <td>
+                                                    <InputNumber @bind-Value="coin.Amount"></InputNumber>
+                                                </td>
+                                                <td>
+                                                    <InputCheckbox @bind-Value="coin.Disabled"></InputCheckbox>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-danger py-0" title="Удалить позицию" @onclick="()=>DeleteVendingMachineCoin(coin)">X</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary" disabled=@(!VendingMachineCoinsContext.Validate())>Сохранить</button>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+            <div class="col">
+                @if (Coins is not null)
+                {
+                    <div class="card m-1">
+                        <div class="card-header text-center">
+                            Монеты
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm ">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Номинал</th>
+                                        <th scope="col">Изображение</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var coin in Coins)
+                                    {
+                                        <tr>
+                                            <td>@coin.Value</td>
+                                            <td><img class="coin m-1" src="Images\Coins\@coin.ImagePath" /></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger text-center" role="alert">
+            <strong>Доступ запрещен!</strong>
+        </div>
+    }
 </div>
