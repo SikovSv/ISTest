@@ -15,16 +15,20 @@ public class CoinService : ICoinService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CoinDto>> GetAllCoins()
+    public async Task<ICollection<CoinDto>> GetAllCoins()
     {
         using var context = _contextFactory.CreateDbContext();
         return await context.Coins.ProjectTo<CoinDto>(_mapper.ConfigurationProvider).OrderBy(x => x.Value).ToListAsync();
     }
 
-    public async Task<IEnumerable<CoinToVendingMachineDto>> GetAllCoins(int vendingMachineId)
+    public async Task<ICollection<CoinToVendingMachineDto>> GetAllCoins(int vendingMachineId)
     {
         using var context = _contextFactory.CreateDbContext();
-        return await context.Coins.ProjectTo<CoinToVendingMachineDto>(_mapper.ConfigurationProvider).ToListAsync();
+        return await context.Coins.Where(x => x.CoinToVendingMachines.Any(x => x.VendingMachineId == vendingMachineId))
+            .ProjectTo<CoinToVendingMachineDto>(_mapper.ConfigurationProvider).ToListAsync();
+
+        //return await context.Beverages.Where(x => x.BeverageToVendingMachines.Any(x => x.VendingMachineId == vendingMachineId))
+        //    .ProjectTo<BeverageForVendingMachineDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
     public async Task AddCoinToVendingMachine(int vendingMachineId, int coinId)
@@ -45,7 +49,7 @@ public class CoinService : ICoinService
         await context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<(int coinId, int amount)>> GetChangeFromVendingMachine(int vendingMachineId, decimal bank)
+    public async Task<ICollection<(int coinId, int amount)>> GetChangeFromVendingMachine(int vendingMachineId, decimal bank)
     {
         Dictionary<int, int> changeBank = new();
 
@@ -63,6 +67,37 @@ public class CoinService : ICoinService
             }
         }
         await context.SaveChangesAsync();
-        return changeBank.Select(x=>(x.Key, x.Value)).ToArray();
+        return changeBank.Select(x => (x.Key, x.Value)).ToArray();
+    }
+
+    public async Task UpdateVendingMachineCoins(int vendingMachineId, IEnumerable<CoinToVendingMachineDto> coins)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var vendingMachine = await context.VendingMachines.Include(x => x.CoinToVendingMachines).FirstOrDefaultAsync(x => x.Id == vendingMachineId);
+        if (vendingMachine is null) return;
+
+        var removeItems = vendingMachine.CoinToVendingMachines.Where(x => !coins.Any(c => c.Id == x.CoinId)).ToList();
+        if (removeItems.Any()) context.CoinToVendingMachines.RemoveRange(removeItems);
+
+        foreach (var coin in coins)
+        {
+            var oldCoins = vendingMachine.CoinToVendingMachines.FirstOrDefault(x => x.CoinId == coin.Id);
+            if (oldCoins is not null)
+            {
+                oldCoins.Amount = coin.Amount;
+                oldCoins.Disabled = coin.Disabled;
+            }
+            else
+            {
+                await context.CoinToVendingMachines.AddAsync(new CoinToVendingMachine
+                {
+                    VendingMachineId = vendingMachineId,
+                    CoinId = coin.Id,
+                    Amount = coin.Amount,
+                    Disabled = coin.Disabled
+                }); 
+            }
+        }
+        await context.SaveChangesAsync();
     }
 }

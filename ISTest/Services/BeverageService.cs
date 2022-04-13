@@ -15,7 +15,7 @@ public class BeverageService : IBeverageService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<BeverageDto>> GetAllBeverages()
+    public async Task<ICollection<BeverageDto>> GetAllBeverages()
     {
         using var context = _contextFactory.CreateDbContext();
         return await context.Beverages.ProjectTo<BeverageDto>(_mapper.ConfigurationProvider).ToListAsync();
@@ -49,7 +49,32 @@ public class BeverageService : IBeverageService
         await context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<BeverageForVendingMachineDto>> GetBeveragesInVendingMachine(int vendingMachineId)
+    public async Task UpdateBeverages(IEnumerable<BeverageDto> beverages)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var oldBeverages = await context.Beverages.ToListAsync();
+
+        var removeItems = oldBeverages.Where(x => !beverages.Any(b => b.Id == x.Id)).ToList();
+        if (removeItems.Any()) context.Beverages.RemoveRange(removeItems);
+
+        foreach (var beverage in beverages)
+        {
+            var oldBeverage = oldBeverages.FirstOrDefault(x => x.Id == beverage.Id);
+            if (oldBeverage is not null)
+            {
+                oldBeverage.Name = beverage.Name;
+                oldBeverage.Volume = beverage.Volume;
+                oldBeverage.Price = beverage.Price;
+            }
+            else
+            {
+                await context.Beverages.AddAsync(_mapper.Map<Beverage>(beverage));
+            }
+        }
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<ICollection<BeverageForVendingMachineDto>> GetBeveragesInVendingMachine(int vendingMachineId)
     {
         using var context = _contextFactory.CreateDbContext();
         return await context.Beverages.Where(x => x.BeverageToVendingMachines.Any(x => x.VendingMachineId == vendingMachineId))
@@ -64,4 +89,31 @@ public class BeverageService : IBeverageService
             entity.Number--;
         await context.SaveChangesAsync();
     }
+    public async Task UpdateVendingMachineBeverage(int vendingMachineId, IEnumerable<BeverageForVendingMachineDto> beverages)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var vendingMachine = await context.VendingMachines.Include(x => x.BeverageToVendingMachines).FirstOrDefaultAsync(x => x.Id == vendingMachineId);
+        if (vendingMachine is null) return;
+
+        var removeItems = vendingMachine.BeverageToVendingMachines.Where(x => !beverages.Any(b => b.Id == x.BeverageId)).ToList();
+        if (removeItems.Any()) context.BeverageToVendingMachines.RemoveRange(removeItems);
+
+        foreach (var beverage in beverages)
+        {
+            var oldBeverage = vendingMachine.BeverageToVendingMachines.FirstOrDefault(x => x.BeverageId == beverage.Id);
+            if (oldBeverage is not null)
+                oldBeverage.Number = beverage.Amount;
+            else
+            {
+                await context.BeverageToVendingMachines.AddAsync(new BeverageToVendingMachine
+                {
+                    VendingMachineId = vendingMachineId,
+                    BeverageId = beverage.Id,
+                    Number = beverage.Amount
+                });
+            }
+        }
+        await context.SaveChangesAsync();
+    }
+
 }

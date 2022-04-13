@@ -5,8 +5,10 @@
         Task BuyBeverage(int vendingMachineId, int beverageId);
         Task<BeverageDto> CreateBeverage(BeverageDto beverage);
         Task DeleteBeverage(int beverageId);
-        Task<IEnumerable<BeverageDto>> GetAllBeverages();
-        Task<IEnumerable<BeverageForVendingMachineDto>> GetBeveragesInVendingMachine(int vendingMachineId);
+        Task<ICollection<BeverageDto>> GetAllBeverages();
+        Task<ICollection<BeverageForVendingMachineDto>> GetBeveragesInVendingMachine(int vendingMachineId);
         Task UpdateBeverage(BeverageDto beverage);
+        Task UpdateBeverages(IEnumerable<BeverageDto> beverages);
+        Task UpdateVendingMachineBeverage(int vendingMachineId, IEnumerable<BeverageForVendingMachineDto> beverages);
     }
 }
