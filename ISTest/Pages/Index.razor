@@ -34,11 +34,11 @@
                     <div class="row beverages-list">
                         @foreach (var beverage in Beverages)
                         {
-                            <div class="col-6">
-                                <div class="card text-center  m-2">
+                            <div class="col-4">
+                                <div class="card text-center  my-1">
                                     <div class="card-body">
                                         <h5 class="card-title">@beverage.Name</h5>
-                                        <h6 class="card-subtitle mb-2 text-muted">Объем: @beverage.Volume л.</h6>
+                                        <h6 class="card-subtitle text-muted">Объем: @beverage.Volume л.</h6>
                                         <hr />
                                         @if (beverage.Amount > 0)
                                         {
@@ -46,7 +46,7 @@
                                         }
                                         else
                                         {
-                                            <div class="alert alert-danger m-1 p-0 " role="alert">
+                                            <div class="alert alert-danger m-1 px-0 py-1 " role="alert">
                                                 Напиток закончился
                                             </div>
                                         }

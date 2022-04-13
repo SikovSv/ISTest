@@ -1,13 +1,9 @@
 ﻿@page "/admin/{AdminKey}"
-@using ISTest.Components
 <PageTitle>Панель администратора</PageTitle>
 
 <div class="container">
     @if (IsAccess)
     {
-        <div class="alert alert-success text-center" role="alert">
-            <strong>Доступ разрешен!</strong>
-        </div>
         <div class="row">
             <div class="col">
                 @if (VendingMachineBeverages is not null)
@@ -107,7 +103,7 @@
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary" disabled=@(!BeveragesContext.Validate())>Сохранить</button>
                                 <button type="button" class="btn btn-success" @onclick="AddBeverage">Добавить</button>
-                                <InputFile class="form-control form-control-sm mt-1" OnChange="@LoadFile" accept=".xlsx"></InputFile>
+                                <InputFile class="form-control form-control-sm mt-2" OnChange="@LoadFile" accept=".xlsx" title="Выберите файл для загрузки"></InputFile>
                             </div>
                         </div>
                     </EditForm>

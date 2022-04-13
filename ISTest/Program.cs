@@ -19,6 +19,8 @@ builder.Services.AddDbContextFactory<BeverageContext>(
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
 
+
+
 var mapperConfig = new MapperConfiguration(mc =>
     mc.AddProfile(new MappingProfile()));
 builder.Services.AddSingleton(mapperConfig.CreateMapper());
@@ -27,6 +29,11 @@ builder.Services.AddScoped<ICoinService, CoinService>();
 builder.Services.AddScoped<IBeverageService, BeverageService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<BeverageContext>().Database.Migrate();
+}
 
 app.UseStaticFiles();
 
