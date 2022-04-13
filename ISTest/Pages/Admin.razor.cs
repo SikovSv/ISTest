@@ -1,5 +1,5 @@
-﻿using ISTest.Components;
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components.Forms;
+
 namespace ISTest.Pages;
 
 public partial class Admin
@@ -23,8 +23,6 @@ public partial class Admin
     protected ICollection<CoinToVendingMachineDto> VendingMachineCoins { get; set; }
     protected ICollection<BeverageDto> Beverages { get; set; }
     protected ICollection<BeverageForVendingMachineDto> VendingMachineBeverages { get; set; }
-
-    protected EditBeverageDialog EditBeverageDialog { get; set; }
 
     protected EditForm EditVendingMachineBeveragesForm { get; set; }
     protected EditForm EditBeveragesForm { get; set; }
@@ -106,10 +104,7 @@ public partial class Admin
         }
     }
 
-    protected void DeleteBeverage(BeverageDto beverage)
-    {
-        Beverages.Remove(beverage);
-    }
+    protected void DeleteBeverage(BeverageDto beverage) => Beverages.Remove(beverage);
 
     protected void AddBeverage()
     {
@@ -121,13 +116,19 @@ public partial class Admin
         });
     }
 
-    protected void DeleteVendingMachineBeverage(BeverageForVendingMachineDto beverage)
-    {
-        VendingMachineBeverages.Remove(beverage);
-    }
+    protected void DeleteVendingMachineBeverage(BeverageForVendingMachineDto beverage) => VendingMachineBeverages.Remove(beverage);
 
-    protected void DeleteVendingMachineCoin(CoinToVendingMachineDto coin)
+    protected void DeleteVendingMachineCoin(CoinToVendingMachineDto coin) => VendingMachineCoins.Remove(coin);
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
     {
-        VendingMachineCoins.Remove(coin);
+        using MemoryStream stream = new();
+        await e.File.OpenReadStream().CopyToAsync(stream);
+
+        foreach (var beverage in BeverageService.GetBeveragesFromStream(stream))
+        {
+            if (!Beverages.Any(x => x.Name == beverage.Name && x.Volume == beverage.Volume))
+                Beverages.Add(beverage);
+        }
     }
 }

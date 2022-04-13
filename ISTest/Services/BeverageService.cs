@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ISTest.Data;
+using OfficeOpenXml;
 
 namespace ISTest.Services;
 
@@ -116,4 +117,39 @@ public class BeverageService : IBeverageService
         await context.SaveChangesAsync();
     }
 
+    public ICollection<BeverageDto> GetBeveragesFromStream(MemoryStream stream)
+    {
+        var newBeverages = new List<BeverageDto>();
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using var excelPack = new ExcelPackage(stream);
+            const int startRow = 2;
+            ExcelWorksheet ws = excelPack.Workbook.Worksheets[0];
+
+            var endRow = ws.Cells[ws.Dimension.Address].End.Row;
+
+            for (int i = startRow; i <= endRow; i++)
+            {
+                try
+                {
+                    var beverage = new BeverageDto
+                    {
+                        Name = ws.Cells[i, 1].Value.ToString(),
+                        Price = decimal.Parse(ws.Cells[i, 2].Value.ToString()),
+                        Volume = decimal.Parse(ws.Cells[i, 3].Value.ToString())
+                    };
+                    newBeverages.Add(beverage);
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        return newBeverages;
+    }
 }

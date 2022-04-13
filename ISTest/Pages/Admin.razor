@@ -38,7 +38,7 @@
                                                 <td>@beverage.Volume</td>
                                                 <td>@(beverage.Price.ToString("N2"))</td>
                                                 <td>
-                                                    <InputNumber style="width: 100px;" @bind-Value="beverage.Amount"></InputNumber>
+                                                    <InputNumber  style="width: 100px;" @bind-Value="beverage.Amount"></InputNumber>
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-danger py-0" title="Удалить позицию" @onclick="()=>DeleteVendingMachineBeverage(beverage)">X</button>
@@ -107,6 +107,7 @@
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary" disabled=@(!BeveragesContext.Validate())>Сохранить</button>
                                 <button type="button" class="btn btn-success" @onclick="AddBeverage">Добавить</button>
+                                <InputFile class="form-control form-control-sm mt-1" OnChange="@LoadFile" accept=".xlsx"></InputFile>
                             </div>
                         </div>
                     </EditForm>
@@ -199,7 +200,6 @@
                 }
             </div>
         </div>
-        <EditBeverageDialog @ref="EditBeverageDialog"></EditBeverageDialog>
     }
     else
     {
